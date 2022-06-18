@@ -1,5 +1,9 @@
 package org.zot.chai.demomongo;
 
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -11,10 +15,12 @@ import org.zot.chai.demomongo.repository.SubmissionTemplate;
 
 @SpringBootApplication
 @EnableMongoRepositories
-public class DemoMongoApplication implements CommandLineRunner {
+public class DemoMongoApplication  implements CommandLineRunner {
+	
+	Logger logger = LoggerFactory.getLogger(DemoMongoApplication.class);
 	
 	@Autowired
-	SubmissionRepository submissionRepo;
+	SubmissionRepository submissionRepository;
 	
 	@Autowired
 	SubmissionTemplate submissiontemplate;
@@ -25,13 +31,13 @@ public class DemoMongoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-			
-		for(Submission sb: submissionRepo.findAll()) {
-			System.out.println(sb.getSubmissionId() + " => " + sb.getUser());
-		}
-		
-		submissiontemplate.currentSubmissionId("FRP");
-		
-	}
 
+		submissionRepository.findAll().stream().filter(Objects::nonNull)
+			.map(Submission::getSubmissionId)
+			.forEach(logger::info);
+
+		logger.info("The current Submission id is => {} ", submissiontemplate.generateSubmissionId("DEL"));	
+		logger.info("findBySubmissionIdStartWith => {}", submissionRepository.findBySubmissionIdStartingWith("FRP"));
+	}
+	
 }
